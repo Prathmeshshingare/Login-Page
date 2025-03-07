@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(circle, #0a2a43, #051826);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 350px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+            outline: none;
+            color: white;
+            text-indent: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 25px;
+            margin-top: 10px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        p {
+            margin-top: 15px;
+            font-size: 14px;
+            color: white;
+        }
+        
+        a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <!-- Fake username field to prevent autofill -->
+            <input type="text" name="fakeusernameremembered" style="display: none;">
+            
+            <input type="email" id="email" required placeholder="Email" autocomplete="off">
+            <input type="password" id="password" required placeholder="Password" autocomplete="new-password">
+            <button type="submit" id="loginBtn">Login</button>
+        </form>
+        <button class="google-btn" onclick="window.location.href='/auth/google'">Login with Google</button>
+        <p>New user? <a href="/register">Register here</a></p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Prevent autofill
+            setTimeout(() => {
+                document.getElementById("email").setAttribute("autocomplete", "off");
+                document.getElementById("password").setAttribute("autocomplete", "new-password");
+            }, 1000);
+
+            // Clear input fields on page load
+            document.getElementById("email").value = "";
+            document.getElementById("password").value = "";
+
+            // Login form submission
+            document.getElementById("loginForm").addEventListener("submit", async function (event) {
+                event.preventDefault(); // Prevent page reload
+
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                const loginButton = document.getElementById("loginBtn");
+
+                // Disable button to prevent multiple clicks
+                loginButton.disabled = true;
+                loginButton.textContent = "Logging in...";
+
+                try {
+                    const response = await fetch("/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Invalid email or password. Please try again.");
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.message || "Login failed.");
+                    }
+
+                    alert("Login successful! Redirecting...");
+                    window.location.href = "http://192.168.198.126:8501/";
+                } catch (error) {
+                    alert(error.message);
+                } finally {
+                    loginButton.disabled = false;
+                    loginButton.textContent = "Login";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
